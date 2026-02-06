@@ -1,0 +1,41 @@
+import PriceTable from "@/components/PriceTable";
+
+export default function Home() {
+  return (
+    <div className="container">
+      <header>
+        <h1>ERCOT Settlement Point Prices</h1>
+        <p>Data sourced from ERCOT Public API</p>
+      </header>
+
+      <div className="tables-grid">
+        <PriceTable
+          title="Real-Time Settlement Point Prices Display"
+          apiEndpoint="/api/rtm-spp"
+          intervalLabel="Interval Ending"
+        />
+
+        <PriceTable
+          title="DAM Settlement Point Prices Display"
+          apiEndpoint="/api/dam-spp"
+          intervalLabel="Hour Ending"
+        />
+      </div>
+
+      <footer>
+        <p>
+          SPP values include the Real-Time Reliability Deployment Price Adders.
+          <br />
+          Data from{" "}
+          <a
+            href="https://www.ercot.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ERCOT
+          </a>
+        </p>
+      </footer>
+    </div>
+  );
+}
