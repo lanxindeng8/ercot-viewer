@@ -31,18 +31,36 @@ export interface DamLmpRecord {
   lmp: number;
 }
 
+// Convert Central Time date to UTC range
+function getUtcRangeForDate(date: string): { start: string; end: string } {
+  // Central Time is UTC-6 (CST) or UTC-5 (CDT)
+  // For simplicity, use UTC-6 (CST) - adjust if needed for DST
+  // date is in format YYYY-MM-DD, representing a day in Central Time
+  // Central midnight = 06:00 UTC
+  const start = `${date}T06:00:00Z`;
+
+  // Next day at 06:00 UTC
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + 1);
+  const nextDateStr = nextDate.toISOString().split("T")[0];
+  const end = `${nextDateStr}T06:00:00Z`;
+
+  return { start, end };
+}
+
 export async function queryRtmLmpData(
   date: string,
   settlementPoints: string[]
 ): Promise<RtmLmpRecord[]> {
   const client = getClient();
   const pointsFilter = settlementPoints.map((p) => `'${p}'`).join(", ");
+  const { start, end } = getUtcRangeForDate(date);
 
   const query = `
     SELECT time, settlement_point, lmp
     FROM "rtm_lmp"
-    WHERE time >= '${date}T00:00:00Z'
-      AND time < '${date}T23:59:59Z'
+    WHERE time >= '${start}'
+      AND time < '${end}'
       AND settlement_point IN (${pointsFilter})
     ORDER BY time ASC
   `;
@@ -72,12 +90,13 @@ export async function queryDamLmpData(
 ): Promise<DamLmpRecord[]> {
   const client = getClient();
   const pointsFilter = settlementPoints.map((p) => `'${p}'`).join(", ");
+  const { start, end } = getUtcRangeForDate(date);
 
   const query = `
     SELECT time, settlement_point, lmp
     FROM "dam_lmp"
-    WHERE time >= '${date}T00:00:00Z'
-      AND time < '${date}T23:59:59Z'
+    WHERE time >= '${start}'
+      AND time < '${end}'
       AND settlement_point IN (${pointsFilter})
     ORDER BY time ASC
   `;

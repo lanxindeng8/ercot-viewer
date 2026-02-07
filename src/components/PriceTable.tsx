@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 
 interface PivotedRow {
-  datetime: string;
+  time: string;
   prices: Record<string, number | null>;
 }
 
@@ -115,7 +115,7 @@ export default function PriceTable({
             <tbody>
               {data.data.map((row, idx) => (
                 <tr key={idx}>
-                  <td className="datetime-cell">{row.datetime}</td>
+                  <td className="time-cell">{row.time}</td>
                   {data.settlementPoints.map((point) => (
                     <td key={point} className="price-cell">
                       {formatPrice(row.prices[point])}

@@ -1,13 +1,13 @@
 import { DateTime } from "luxon";
 import { ERCOT_TIMEZONE } from "./constants";
 
-export function formatDateTime(date: Date, includeMinutes: boolean = true): string {
+export function formatTime(date: Date, includeMinutes: boolean = true): string {
   const dt = DateTime.fromJSDate(date, { zone: "utc" }).setZone(ERCOT_TIMEZONE);
   if (includeMinutes) {
-    return dt.toFormat("MM/dd/yyyy HH:mm");
+    return dt.toFormat("HH:mm");
   }
   const hour = dt.hour === 0 ? 24 : dt.hour;
-  return dt.toFormat("MM/dd/yyyy") + " " + hour.toString().padStart(2, "0") + ":00";
+  return hour.toString().padStart(2, "0") + ":00";
 }
 
 export function getToday(): string {
@@ -22,7 +22,7 @@ export function getTomorrow(): string {
 }
 
 export interface PivotedRow {
-  datetime: string;
+  time: string;
   prices: Record<string, number | null>;
 }
 
@@ -53,7 +53,7 @@ export function pivotRtmData(
     }
 
     rows.push({
-      datetime: formatDateTime(date, true),
+      time: formatTime(date, true),
       prices,
     });
   }
@@ -88,7 +88,7 @@ export function pivotDamData(
     }
 
     rows.push({
-      datetime: formatDateTime(date, false),
+      time: formatTime(date, false),
       prices,
     });
   }
