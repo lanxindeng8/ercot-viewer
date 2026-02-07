@@ -1,19 +1,13 @@
 import { DateTime } from "luxon";
 import { ERCOT_TIMEZONE } from "./constants";
 
-export function formatIntervalEnding(date: Date): string {
+export function formatDateTime(date: Date, includeMinutes: boolean = true): string {
   const dt = DateTime.fromJSDate(date, { zone: "utc" }).setZone(ERCOT_TIMEZONE);
-  return dt.toFormat("HHmm");
-}
-
-export function formatHourEnding(date: Date): number {
-  const dt = DateTime.fromJSDate(date, { zone: "utc" }).setZone(ERCOT_TIMEZONE);
-  return dt.hour === 0 ? 24 : dt.hour;
-}
-
-export function formatDate(date: Date): string {
-  const dt = DateTime.fromJSDate(date, { zone: "utc" }).setZone(ERCOT_TIMEZONE);
-  return dt.toFormat("MM/dd/yyyy");
+  if (includeMinutes) {
+    return dt.toFormat("MM/dd/yyyy HH:mm");
+  }
+  const hour = dt.hour === 0 ? 24 : dt.hour;
+  return dt.toFormat("MM/dd/yyyy") + " " + hour.toString().padStart(2, "0") + ":00";
 }
 
 export function getToday(): string {
@@ -28,8 +22,7 @@ export function getTomorrow(): string {
 }
 
 export interface PivotedRow {
-  operDay: string;
-  interval: string | number;
+  datetime: string;
   prices: Record<string, number | null>;
 }
 
@@ -37,7 +30,6 @@ export function pivotRtmData(
   records: { time: Date; settlementPoint: string; lmp: number }[],
   settlementPoints: string[]
 ): PivotedRow[] {
-  // Group by time
   const timeMap = new Map<string, Map<string, number>>();
 
   for (const record of records) {
@@ -48,7 +40,6 @@ export function pivotRtmData(
     timeMap.get(timeKey)!.set(record.settlementPoint, record.lmp);
   }
 
-  // Convert to rows
   const rows: PivotedRow[] = [];
   const sortedTimes = Array.from(timeMap.keys()).sort();
 
@@ -62,8 +53,7 @@ export function pivotRtmData(
     }
 
     rows.push({
-      operDay: formatDate(date),
-      interval: formatIntervalEnding(date),
+      datetime: formatDateTime(date, true),
       prices,
     });
   }
@@ -75,7 +65,6 @@ export function pivotDamData(
   records: { time: Date; settlementPoint: string; lmp: number }[],
   settlementPoints: string[]
 ): PivotedRow[] {
-  // Group by time
   const timeMap = new Map<string, Map<string, number>>();
 
   for (const record of records) {
@@ -86,7 +75,6 @@ export function pivotDamData(
     timeMap.get(timeKey)!.set(record.settlementPoint, record.lmp);
   }
 
-  // Convert to rows
   const rows: PivotedRow[] = [];
   const sortedTimes = Array.from(timeMap.keys()).sort();
 
@@ -100,8 +88,7 @@ export function pivotDamData(
     }
 
     rows.push({
-      operDay: formatDate(date),
-      interval: formatHourEnding(date),
+      datetime: formatDateTime(date, false),
       prices,
     });
   }

@@ -12,13 +12,11 @@ export default function Home() {
         <PriceTable
           title="Real-Time Settlement Point Prices Display"
           apiEndpoint="/api/rtm-spp"
-          intervalLabel="Interval Ending"
         />
 
         <PriceTable
           title="DAM Settlement Point Prices Display"
           apiEndpoint="/api/dam-spp"
-          intervalLabel="Hour Ending"
         />
       </div>
 

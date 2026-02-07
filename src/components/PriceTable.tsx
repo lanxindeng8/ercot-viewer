@@ -3,8 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 
 interface PivotedRow {
-  operDay: string;
-  interval: string | number;
+  datetime: string;
   prices: Record<string, number | null>;
 }
 
@@ -18,14 +17,12 @@ interface TableData {
 interface PriceTableProps {
   title: string;
   apiEndpoint: string;
-  intervalLabel: string;
   defaultDate?: string;
 }
 
 export default function PriceTable({
   title,
   apiEndpoint,
-  intervalLabel,
   defaultDate,
 }: PriceTableProps) {
   const [data, setData] = useState<TableData | null>(null);
@@ -109,8 +106,7 @@ export default function PriceTable({
           <table>
             <thead>
               <tr>
-                <th>Oper Day</th>
-                <th>{intervalLabel}</th>
+                <th>Time</th>
                 {data.settlementPoints.map((point) => (
                   <th key={point}>{point}</th>
                 ))}
@@ -119,8 +115,7 @@ export default function PriceTable({
             <tbody>
               {data.data.map((row, idx) => (
                 <tr key={idx}>
-                  <td>{row.operDay}</td>
-                  <td>{row.interval}</td>
+                  <td className="datetime-cell">{row.datetime}</td>
                   {data.settlementPoints.map((point) => (
                     <td key={point} className="price-cell">
                       {formatPrice(row.prices[point])}
