@@ -17,12 +17,14 @@ interface TableData {
 interface PriceTableProps {
   title: string;
   apiEndpoint: string;
+  timeColumnLabel: string;
   defaultDate?: string;
 }
 
 export default function PriceTable({
   title,
   apiEndpoint,
+  timeColumnLabel,
   defaultDate,
 }: PriceTableProps) {
   const [data, setData] = useState<TableData | null>(null);
@@ -61,7 +63,7 @@ export default function PriceTable({
   }, [fetchData]);
 
   const formatPrice = (price: number | null): string => {
-    if (price === null) return "-";
+    if (price === null) return "";
     return price.toFixed(2);
   };
 
@@ -106,7 +108,7 @@ export default function PriceTable({
           <table>
             <thead>
               <tr>
-                <th>Time</th>
+                <th>{timeColumnLabel}</th>
                 {data.settlementPoints.map((point) => (
                   <th key={point}>{point}</th>
                 ))}
