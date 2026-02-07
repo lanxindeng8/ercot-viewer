@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 interface PivotedRow {
   time: string;
@@ -108,9 +108,19 @@ export default function PriceTable({
           <table>
             <thead>
               <tr>
-                <th>{timeColumnLabel}</th>
+                <th rowSpan={2}>{timeColumnLabel}</th>
                 {data.settlementPoints.map((point) => (
-                  <th key={point}>{point}</th>
+                  <th key={point} colSpan={2} className="point-header">
+                    {point}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                {data.settlementPoints.map((point) => (
+                  <React.Fragment key={point}>
+                    <th className="sub-header">Actual</th>
+                    <th className="sub-header pred-header">Pred</th>
+                  </React.Fragment>
                 ))}
               </tr>
             </thead>
@@ -119,9 +129,12 @@ export default function PriceTable({
                 <tr key={idx}>
                   <td className="time-cell">{row.time}</td>
                   {data.settlementPoints.map((point) => (
-                    <td key={point} className="price-cell">
-                      {formatPrice(row.prices[point])}
-                    </td>
+                    <React.Fragment key={point}>
+                      <td className="price-cell">
+                        {formatPrice(row.prices[point])}
+                      </td>
+                      <td className="price-cell pred-cell"></td>
+                    </React.Fragment>
                   ))}
                 </tr>
               ))}

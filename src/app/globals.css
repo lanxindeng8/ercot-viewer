@@ -129,7 +129,21 @@ th {
   font-weight: 600;
   position: sticky;
   top: 0;
-  border-bottom: 2px solid #999;
+}
+
+th.point-header {
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+}
+
+th.sub-header {
+  font-weight: 500;
+  font-size: 10px;
+  top: 20px;
+}
+
+th.pred-header {
+  background-color: #d8e8d8;
 }
 
 th:first-child {
@@ -156,6 +170,10 @@ tbody tr:hover {
 .price-cell {
   font-family: "Consolas", "Monaco", "Courier New", monospace;
   font-size: 11px;
+}
+
+.pred-cell {
+  background-color: #f0f8f0;
 }
 
 .error {
