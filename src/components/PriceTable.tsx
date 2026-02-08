@@ -5,6 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 interface PivotedRow {
   time: string;
   prices: Record<string, number | null>;
+  predictions?: Record<string, number | null>;
 }
 
 interface TableData {
@@ -134,7 +135,9 @@ export default function PriceTable({
                       <td className="price-cell">
                         {formatPrice(row.prices[point])}
                       </td>
-                      <td className="price-cell pred-cell"></td>
+                      <td className="price-cell pred-cell">
+                        {formatPrice(row.predictions?.[point] ?? null)}
+                      </td>
                     </React.Fragment>
                   ))}
                 </tr>
