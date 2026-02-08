@@ -69,12 +69,13 @@ export default function PriceTable({
 
   const lastUpdatedFormatted = data?.lastUpdated
     ? new Date(data.lastUpdated).toLocaleString("en-US", {
+        timeZone: "America/Chicago",
         month: "short",
         day: "2-digit",
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-      })
+      }) + " CST"
     : "";
 
   return (
