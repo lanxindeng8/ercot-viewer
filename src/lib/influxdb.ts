@@ -119,3 +119,47 @@ export async function queryDamLmpData(
 
   return records;
 }
+
+export interface DamPredictionRecord {
+  time: Date;
+  settlementPoint: string;
+  predictedPrice: number;
+  hourEnding: number;
+}
+
+export async function queryDamPredictions(
+  date: string,
+  settlementPoints: string[]
+): Promise<DamPredictionRecord[]> {
+  const client = getClient();
+  const pointsFilter = settlementPoints.map((p) => `'${p}'`).join(", ");
+  const { start, end } = getUtcRangeForDate(date);
+
+  const query = `
+    SELECT time, settlement_point, predicted_price, hour_ending
+    FROM "dam_prediction"
+    WHERE time >= '${start}'
+      AND time < '${end}'
+      AND settlement_point IN (${pointsFilter})
+    ORDER BY time ASC
+  `;
+
+  const records: DamPredictionRecord[] = [];
+
+  try {
+    const result = await client.query(query);
+    for await (const row of result) {
+      records.push({
+        time: new Date(row.time),
+        settlementPoint: row.settlement_point,
+        predictedPrice: row.predicted_price,
+        hourEnding: row.hour_ending,
+      });
+    }
+  } catch (error) {
+    console.error("Error querying DAM predictions:", error);
+    // Don't throw - predictions are optional
+  }
+
+  return records;
+}
