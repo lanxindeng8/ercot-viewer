@@ -56,7 +56,8 @@ export async function queryRtmLmpData(
   const pointsFilter = settlementPoints.map((p) => `'${p}'`).join(", ");
   const { start, end } = getUtcRangeForDate(date);
 
-  const query = `
+  // Try rtm_lmp_realtime first (CDR data, ~5 min delay)
+  const realtimeQuery = `
     SELECT time, settlement_point, lmp
     FROM "rtm_lmp_realtime"
     WHERE time >= '${start}'
@@ -65,10 +66,10 @@ export async function queryRtmLmpData(
     ORDER BY time ASC
   `;
 
-  const records: RtmLmpRecord[] = [];
+  let records: RtmLmpRecord[] = [];
 
   try {
-    const result = await client.query(query);
+    const result = await client.query(realtimeQuery);
     for await (const row of result) {
       records.push({
         time: new Date(row.time),
@@ -77,8 +78,33 @@ export async function queryRtmLmpData(
       });
     }
   } catch (error) {
-    console.error("Error querying RTM LMP data:", error);
-    throw error;
+    console.error("Error querying rtm_lmp_realtime:", error);
+  }
+
+  // Fallback to rtm_lmp_api if no realtime data
+  if (records.length === 0) {
+    const apiQuery = `
+      SELECT time, settlement_point, lmp
+      FROM "rtm_lmp_api"
+      WHERE time >= '${start}'
+        AND time < '${end}'
+        AND settlement_point IN (${pointsFilter})
+      ORDER BY time ASC
+    `;
+
+    try {
+      const result = await client.query(apiQuery);
+      for await (const row of result) {
+        records.push({
+          time: new Date(row.time),
+          settlementPoint: row.settlement_point,
+          lmp: row.lmp,
+        });
+      }
+    } catch (error) {
+      console.error("Error querying rtm_lmp_api:", error);
+      throw error;
+    }
   }
 
   return records;
