@@ -58,7 +58,7 @@ export async function queryRtmLmpData(
 
   const query = `
     SELECT time, settlement_point, lmp
-    FROM "rtm_lmp"
+    FROM "rtm_lmp_realtime"
     WHERE time >= '${start}'
       AND time < '${end}'
       AND settlement_point IN (${pointsFilter})
