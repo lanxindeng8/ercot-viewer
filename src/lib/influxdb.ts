@@ -56,7 +56,36 @@ export async function queryRtmLmpData(
   const pointsFilter = settlementPoints.map((p) => `'${p}'`).join(", ");
   const { start, end } = getUtcRangeForDate(date);
 
-  // Try rtm_lmp_realtime first (CDR data, ~5 min delay)
+  // Query both tables and merge results
+  // rtm_lmp_api has historical data (API, ~6h delay)
+  // rtm_lmp_realtime has recent data (CDR, ~5min delay)
+  const recordMap = new Map<string, RtmLmpRecord>();
+
+  // First, get API data (historical baseline)
+  const apiQuery = `
+    SELECT time, settlement_point, lmp
+    FROM "rtm_lmp_api"
+    WHERE time >= '${start}'
+      AND time < '${end}'
+      AND settlement_point IN (${pointsFilter})
+    ORDER BY time ASC
+  `;
+
+  try {
+    const result = await client.query(apiQuery);
+    for await (const row of result) {
+      const key = `${row.time}-${row.settlement_point}`;
+      recordMap.set(key, {
+        time: new Date(row.time),
+        settlementPoint: row.settlement_point,
+        lmp: row.lmp,
+      });
+    }
+  } catch (error) {
+    console.error("Error querying rtm_lmp_api:", error);
+  }
+
+  // Then, overlay with realtime data (newer, overwrites API data for same time)
   const realtimeQuery = `
     SELECT time, settlement_point, lmp
     FROM "rtm_lmp_realtime"
@@ -66,12 +95,11 @@ export async function queryRtmLmpData(
     ORDER BY time ASC
   `;
 
-  let records: RtmLmpRecord[] = [];
-
   try {
     const result = await client.query(realtimeQuery);
     for await (const row of result) {
-      records.push({
+      const key = `${row.time}-${row.settlement_point}`;
+      recordMap.set(key, {
         time: new Date(row.time),
         settlementPoint: row.settlement_point,
         lmp: row.lmp,
@@ -81,31 +109,9 @@ export async function queryRtmLmpData(
     console.error("Error querying rtm_lmp_realtime:", error);
   }
 
-  // Fallback to rtm_lmp_api if no realtime data
-  if (records.length === 0) {
-    const apiQuery = `
-      SELECT time, settlement_point, lmp
-      FROM "rtm_lmp_api"
-      WHERE time >= '${start}'
-        AND time < '${end}'
-        AND settlement_point IN (${pointsFilter})
-      ORDER BY time ASC
-    `;
-
-    try {
-      const result = await client.query(apiQuery);
-      for await (const row of result) {
-        records.push({
-          time: new Date(row.time),
-          settlementPoint: row.settlement_point,
-          lmp: row.lmp,
-        });
-      }
-    } catch (error) {
-      console.error("Error querying rtm_lmp_api:", error);
-      throw error;
-    }
-  }
+  // Convert map to array and sort by time
+  const records = Array.from(recordMap.values());
+  records.sort((a, b) => a.time.getTime() - b.time.getTime());
 
   return records;
 }
