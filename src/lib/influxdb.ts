@@ -65,8 +65,8 @@ export async function queryRtmLmpData(
   const apiQuery = `
     SELECT time, settlement_point, lmp
     FROM "rtm_lmp_api"
-    WHERE time >= '${start}'
-      AND time < '${end}'
+    WHERE time > '${start}'
+      AND time <= '${end}'
       AND settlement_point IN (${pointsFilter})
     ORDER BY time ASC
   `;
@@ -89,8 +89,8 @@ export async function queryRtmLmpData(
   const realtimeQuery = `
     SELECT time, settlement_point, lmp
     FROM "rtm_lmp_realtime"
-    WHERE time >= '${start}'
-      AND time < '${end}'
+    WHERE time > '${start}'
+      AND time <= '${end}'
       AND settlement_point IN (${pointsFilter})
     ORDER BY time ASC
   `;
