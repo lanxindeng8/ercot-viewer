@@ -48,13 +48,27 @@ function toRtmTimeKey(date: Date): string {
   const dt = DateTime.fromJSDate(date, { zone: "utc" }).setZone(ERCOT_TIMEZONE);
   const hour = dt.hour;
   const min = dt.minute;
+  const sec = dt.second;
 
-  if (min === 0) {
-    // Midnight (00:00) maps to 24:00 of previous logical hour
+  // Only exactly on the hour (min=0, sec=0) maps to hour ending
+  // e.g., 00:00:00 -> 24:00, 01:00:00 -> 01:00
+  if (min === 0 && sec === 0) {
     const displayHour = hour === 0 ? 24 : hour;
     return displayHour.toString().padStart(2, "0") + ":00";
   }
-  return hour.toString().padStart(2, "0") + ":" + min.toString().padStart(2, "0");
+
+  // Round up to next 5-minute interval
+  // e.g., 00:00:20 -> 00:05, 00:03:00 -> 00:05, 00:05:01 -> 00:10
+  const totalSeconds = min * 60 + sec;
+  const roundedMin = Math.ceil(totalSeconds / 300) * 5;
+
+  if (roundedMin === 60) {
+    // Rolled over to next hour
+    const displayHour = hour + 1;
+    return displayHour.toString().padStart(2, "0") + ":00";
+  }
+
+  return hour.toString().padStart(2, "0") + ":" + roundedMin.toString().padStart(2, "0");
 }
 
 // Convert record time to display time key for DAM (hourly)
