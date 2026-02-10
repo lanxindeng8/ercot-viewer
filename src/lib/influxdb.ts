@@ -59,7 +59,7 @@ export async function queryRtmLmpData(
   const query = `
     SELECT time, settlement_point, lmp
     FROM "rtm_lmp"
-    WHERE time > '${start}'
+    WHERE time >= '${start}'
       AND time < '${end}'
       AND settlement_point IN (${pointsFilter})
     ORDER BY time ASC
@@ -95,7 +95,7 @@ export async function queryDamLmpData(
   const query = `
     SELECT time, settlement_point, lmp
     FROM "dam_lmp"
-    WHERE time > '${start}'
+    WHERE time >= '${start}'
       AND time < '${end}'
       AND settlement_point IN (${pointsFilter})
     ORDER BY time ASC
@@ -138,7 +138,7 @@ export async function queryDamPredictions(
   const query = `
     SELECT time, settlement_point, predicted_price, hour_ending
     FROM "dam_prediction"
-    WHERE time > '${start}'
+    WHERE time >= '${start}'
       AND time < '${end}'
       AND settlement_point IN (${pointsFilter})
     ORDER BY time ASC
