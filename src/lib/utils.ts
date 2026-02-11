@@ -72,10 +72,12 @@ function toRtmTimeKey(date: Date): string {
 }
 
 // Convert record time to display time key for DAM (hourly)
+// DAM timestamp is the START of the hour, convert to hour ending (add 1)
+// CT 00:00 → HE 01, CT 01:00 → HE 02, ..., CT 23:00 → HE 24
 function toDamTimeKey(date: Date): string {
   const dt = DateTime.fromJSDate(date, { zone: "utc" }).setZone(ERCOT_TIMEZONE);
-  const hour = dt.hour === 0 ? 24 : dt.hour;
-  return hour.toString().padStart(2, "0") + ":00";
+  const hourEnding = dt.hour + 1;  // 0 → 1, 1 → 2, ..., 23 → 24
+  return hourEnding.toString().padStart(2, "0") + ":00";
 }
 
 export function pivotRtmData(
