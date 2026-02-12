@@ -1,4 +1,5 @@
 import PriceTable from "@/components/PriceTable";
+import PriceChart from "@/components/PriceChart";
 
 export default function Home() {
   return (
@@ -7,6 +8,8 @@ export default function Home() {
         <h1>ERCOT Settlement Point Prices</h1>
         <p>Data sourced from ERCOT Public API</p>
       </header>
+
+      <PriceChart />
 
       <div className="tables-grid">
         <PriceTable
