@@ -130,7 +130,7 @@ export default function PriceChart() {
                 type="monotone"
                 dataKey="rtmActual"
                 name="RTM Actual"
-                stroke="#4ecdc4"
+                stroke="#ff6b6b"
                 strokeWidth={2}
                 dot={false}
                 connectNulls
@@ -139,7 +139,7 @@ export default function PriceChart() {
                 type="monotone"
                 dataKey="damActual"
                 name="DAM Actual"
-                stroke="#ff6b6b"
+                stroke="#4ecdc4"
                 strokeWidth={2}
                 dot={false}
                 connectNulls
@@ -148,7 +148,7 @@ export default function PriceChart() {
                 type="monotone"
                 dataKey="damPred"
                 name="DAM Predicted"
-                stroke="#ffd93d"
+                stroke="#4ecdc4"
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={false}
